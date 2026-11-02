@@ -405,7 +405,7 @@ document.getElementById("searchC").addEventListener("input",renderTable);
 
 async function loadCSV() {
   try {
-    const response = await fetch("pelaku_ekraf_240820.csv");
+    const response = await fetch("pelaku_ekraf_aman.csv");
     if (!response.ok) throw new Error("File CSV tidak ditemukan oleh browser.");
     const buffer = await response.arrayBuffer();
     const text = new TextDecoder("windows-1252").decode(buffer);
