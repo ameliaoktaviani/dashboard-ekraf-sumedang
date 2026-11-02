@@ -1,0 +1,438 @@
+
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard Ekraf Sumedang</title>
+<style>
+:root {
+  --g:#167c72; --dark:#123f3b; --ink:#183331;
+  --muted:#647571; --line:#dce6e3; --bg:#f3f7f6;
+}
+* {box-sizing:border-box}
+body {margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 Arial,sans-serif}
+header {background:var(--dark);color:white;padding:18px 24px}
+header small {color:#c4ded9}
+nav {display:flex;gap:8px;flex-wrap:wrap;padding:14px 22px;background:white;border-bottom:1px solid var(--line)}
+button {padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:white;cursor:pointer;color:var(--ink)}
+button.active,button.primary {background:var(--g);color:white;border-color:var(--g)}
+main {max-width:1150px;margin:22px auto;padding:0 16px}
+.view {display:none}
+.view.active {display:block}
+.intro {display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+h1 {font-size:23px;margin:0}
+h2 {font-size:15px;margin:0 0 12px}
+small,.muted {color:var(--muted)}
+.pill {background:#dff2ef;color:#14645d;padding:5px 10px;border-radius:20px;font-size:11px}
+.cards {display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:15px 0}
+.card,.panel {background:white;border:1px solid var(--line);border-radius:12px;padding:15px;min-width:0}
+.label {font-size:12px;color:var(--muted)}
+.num {font-size:27px;font-weight:bold;margin:4px 0}
+.grid {display:grid;grid-template-columns:1fr 1fr;gap:13px;margin:13px 0}
+.bar {display:grid;grid-template-columns:minmax(100px,150px) 1fr 55px;gap:8px;align-items:center;margin:13px 0;font-size:12px}
+.track {height:11px;background:#edf2f0;border-radius:20px;overflow:hidden}
+.fill {height:100%;background:var(--g);border-radius:20px;transition:width .2s}
+.donut {width:112px;height:112px;border-radius:50%;background:conic-gradient(var(--g) 0 98.3%,#e9b34c 98.3%);position:relative;flex:none}
+.donut:after {content:"";position:absolute;inset:23px;background:white;border-radius:50%}
+.flex {display:flex;gap:17px;align-items:center;flex-wrap:wrap}
+.legend {font-size:12px;color:var(--muted)}
+.filters {display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin:12px 0}
+.field label {display:block;font-size:11px;color:var(--muted);margin-bottom:5px}
+.field select,.field input {width:100%;padding:9px;border:1px solid var(--line);border-radius:8px;background:white}
+.tablewrap {overflow:auto}
+table {border-collapse:collapse;width:100%;font-size:12px}
+td,th {text-align:left;padding:10px;border-bottom:1px solid var(--line)}
+th {background:#f5f8f7}
+.notice {background:#fff8e8;padding:10px;border-radius:8px;margin-top:10px;font-size:11px;color:#65552e}
+.status {padding:10px;border-radius:8px;background:#eaf4f1;margin:12px 0;font-size:12px}
+.status.error {background:#fff0ed;color:#8b3024}
+.mobile {max-width:410px;margin:0 auto;background:#e8efed;border:5px solid #29423e;border-radius:25px;padding:10px}
+.screen {background:var(--bg);border-radius:16px;padding:12px;min-height:550px}
+.screen h1 {font-size:19px}
+.screen .cards {grid-template-columns:1fr 1fr;gap:8px}
+.screen .card,.screen .panel {padding:11px}
+.screen .num {font-size:22px}
+.screen .grid {grid-template-columns:1fr}
+.screen .filters {grid-template-columns:1fr 1fr}
+.screen .bar {grid-template-columns:95px 1fr 45px;gap:5px;font-size:10px}
+.foot {text-align:center;color:var(--muted);font-size:11px;margin:20px}
+@media(max-width:750px) {
+  .cards {grid-template-columns:1fr 1fr}
+  .grid {grid-template-columns:1fr}
+  .filters {grid-template-columns:1fr 1fr}
+  main {padding:0 10px}
+  nav {padding:10px}
+  nav button {font-size:11px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <b>PEMETAAN KAPASITAS EKONOMI KREATIF</b><br>
+  <small>Kabupaten Sumedang · Dashboard berbasis data CSV</small>
+</header>
+
+<nav>
+  <button class="active" data-view="a">1. Kebijakan · Desktop</button>
+  <button data-view="b">2. Kebijakan · Mobile</button>
+  <button data-view="c">3. Pengolah Data · Desktop</button>
+  <button data-view="d">4. Pengolah Data · Mobile</button>
+</nav>
+
+<main>
+<div id="status" class="status">Sedang memuat data CSV...</div>
+
+<!-- TAMPILAN A: KEBIJAKAN DESKTOP -->
+<section id="a" class="view active">
+  <div class="intro">
+    <div><h1>Ringkasan Ekonomi Kreatif</h1><small>Pengambil kebijakan · Desktop</small></div>
+    <span class="pill">Ringkasan data</span>
+  </div>
+
+  <div class="cards">
+    <div class="card"><div class="label">Total pelaku tercatat</div><div class="num" id="totalA">-</div></div>
+    <div class="card"><div class="label">Tidak berbadan usaha</div><div class="num" id="usahaA">-</div><small id="usahaDetailA"></small></div>
+    <div class="card"><div class="label">Belum memiliki HKI</div><div class="num" id="hkiA">-</div><small id="hkiDetailA"></small></div>
+    <div class="card"><div class="label">Pemasaran dalam kabupaten</div><div class="num" id="pasarA">-</div><small id="pasarDetailA"></small></div>
+  </div>
+
+  <div class="grid">
+    <div class="panel"><h2>Status badan usaha</h2><div id="chartUsahaA"></div></div>
+    <div class="panel">
+      <h2>Kepemilikan HKI</h2>
+      <div class="flex">
+        <div id="donutA" class="donut"></div>
+        <div id="legendHkiA" class="legend"></div>
+      </div>
+    </div>
+    <div class="panel"><h2>Kategori pendapatan</h2><div id="chartPendapatanA"></div></div>
+    <div class="panel"><h2>Lingkup pemasaran</h2><div id="chartPasarA"></div></div>
+  </div>
+  <div class="panel">
+    <h2>Filter analisis</h2>
+    <div class="filters">
+      <div class="field"><label>Status usaha</label><select id="filterUsahaA"><option value="">Semua status</option></select></div>
+      <div class="field"><label>Kepemilikan HKI</label><select id="filterHkiA"><option value="">Semua status</option></select></div>
+      <div class="field"><label>Pendapatan</label><select id="filterPendapatanA"><option value="">Semua kategori</option></select></div>
+      <div class="field"><label>Lingkup pemasaran</label><select id="filterPasarA"><option value="">Semua lingkup</option></select></div>
+    </div>
+    <button class="primary" onclick="applyPolicyFilter()">Terapkan filter</button>
+    <button onclick="resetPolicyFilter()">Reset</button>
+  </div>
+</section>
+
+<!-- TAMPILAN B: KEBIJAKAN MOBILE -->
+<section id="b" class="view">
+  <div class="intro"><div><h1>Pengambil Kebijakan</h1><small>Simulasi tampilan smartphone</small></div><span class="pill">Mobile</span></div>
+  <div class="mobile"><div class="screen">
+    <h1>Dashboard Ekraf</h1><small>Kabupaten Sumedang</small>
+    <div class="card" style="margin-top:12px"><div class="label">Total pelaku tercatat</div><div class="num" id="totalB">-</div></div>
+    <div class="cards">
+      <div class="card"><div class="label">Tidak berbadan usaha</div><div class="num" id="usahaB">-</div></div>
+      <div class="card"><div class="label">Belum memiliki HKI</div><div class="num" id="hkiB">-</div></div>
+    </div>
+    <div class="panel"><h2>Kategori pendapatan</h2><div id="chartPendapatanB"></div></div>
+    <div class="panel"><h2>Lingkup pemasaran</h2><div id="chartPasarB"></div></div>
+    <div class="panel"><h2>Komposisi HKI</h2><div id="legendHkiB" class="legend"></div></div>
+  </div></div>
+</section>
+
+<!-- TAMPILAN C: PENGOLAH DATA DESKTOP -->
+<section id="c" class="view">
+  <div class="intro">
+    <div><h1>Penelusuran Data Pelaku Ekraf</h1><small>Pengolah data · Desktop</small></div>
+    <span class="pill">Tabel agregat</span>
+  </div>
+  <div class="panel">
+    <h2>Filter dan pencarian kategori</h2>
+    <div class="filters">
+      <div class="field"><label>Kata kunci kategori</label><input id="searchC" placeholder="Cari kategori..."></div>
+      <div class="field"><label>Dimensi data</label>
+        <select id="dimensiC">
+          <option value="status_usaha">Status usaha</option>
+          <option value="kepemilikan_hki">Kepemilikan HKI</option>
+          <option value="pendapatan">Pendapatan</option>
+          <option value="lingkup_pemasaran">Lingkup pemasaran</option>
+          <option value="jenis_kelamin">Jenis kelamin</option>
+        </select>
+      </div>
+      <div class="field"><label>Filter status usaha</label><select id="filterUsahaC"><option value="">Semua status</option></select></div>
+      <div class="field"><label>Filter HKI</label><select id="filterHkiC"><option value="">Semua status</option></select></div>
+    </div>
+    <button class="primary" onclick="renderTable()">Tampilkan data agregat</button>
+    <button onclick="resetProcessor()">Reset</button>
+  </div>
+  <div class="cards">
+    <div class="card"><div class="label">Jumlah data sesuai filter</div><div class="num" id="totalC">-</div></div>
+    <div class="card"><div class="label">Kategori yang ditampilkan</div><div class="num" id="kategoriC">-</div></div>
+  </div>
+  <div class="panel">
+    <h2>Hasil pengelompokan data</h2>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Dimensi</th><th>Kategori</th><th>Jumlah</th><th>Persentase</th></tr></thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+    <div class="notice">Tabel ini hanya menampilkan hasil agregasi kategori, bukan identitas pribadi pelaku usaha.</div>
+  </div>
+</section>
+
+<!-- TAMPILAN D: PENGOLAH DATA MOBILE -->
+<section id="d" class="view">
+  <div class="intro"><div><h1>Pengolah Data</h1><small>Simulasi tampilan smartphone</small></div><span class="pill">Mobile</span></div>
+  <div class="mobile"><div class="screen">
+    <h1>Penelusuran Data</h1><small>Data pelaku ekonomi kreatif</small>
+    <div class="card" style="margin-top:12px"><div class="label">Jumlah data tercatat</div><div class="num" id="totalD">-</div></div>
+    <div class="panel">
+      <h2>Ringkasan HKI</h2><div id="legendHkiD" class="legend"></div>
+    </div>
+    <div class="panel"><h2>Status badan usaha</h2><div id="chartUsahaD"></div></div>
+    <div class="panel">
+      <h2>Pilih dimensi ringkasan</h2>
+      <select id="dimensiD" style="width:100%;padding:9px">
+        <option value="status_usaha">Status usaha</option>
+        <option value="kepemilikan_hki">Kepemilikan HKI</option>
+        <option value="pendapatan">Pendapatan</option>
+        <option value="lingkup_pemasaran">Lingkup pemasaran</option>
+        <option value="jenis_kelamin">Jenis kelamin</option>
+      </select>
+      <div id="tableMobile" class="legend" style="margin-top:12px"></div>
+    </div>
+    <small>Tampilan mobile menyajikan ringkasan. Rincian tabel lebih nyaman dibaca melalui desktop.</small>
+  </div></div>
+</section>
+
+<div class="foot">Dashboard berbasis CSV · Data agregat · Kabupaten Sumedang</div>
+</main>
+
+<script>
+let allRows = [];
+let currentRows = [];
+
+const fields = {
+  status_usaha: "Status usaha",
+  kepemilikan_hki: "Kepemilikan HKI",
+  pendapatan: "Kategori pendapatan",
+  lingkup_pemasaran: "Lingkup pemasaran",
+  jenis_kelamin: "Jenis kelamin"
+};
+
+function parseCSV(text) {
+  const lines = [];
+  let row = [], cell = "", quoted = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i], next = text[i+1];
+    if (ch === '"' && quoted && next === '"') { cell += '"'; i++; }
+    else if (ch === '"') { quoted = !quoted; }
+    else if (ch === ';' && !quoted) { row.push(cell); cell = ""; }
+    else if ((ch === '\n' || ch === '\r') && !quoted) {
+      if (ch === '\r' && next === '\n') i++;
+      row.push(cell); lines.push(row); row = []; cell = "";
+    } else { cell += ch; }
+  }
+  if (cell.length || row.length) { row.push(cell); lines.push(row); }
+
+  const headers = lines.shift().map(x => x.trim().replace(/^\uFEFF/, ""));
+  return lines.filter(r => r.some(x => x.trim() !== "")).map(r => {
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = (r[i] || "").trim());
+    return obj;
+  });
+}
+
+function countBy(rows, field) {
+  const result = {};
+  rows.forEach(r => {
+    const value = r[field] || "Tidak diisi";
+    result[value] = (result[value] || 0) + 1;
+  });
+  return result;
+}
+
+function pct(n, total) {
+  return total ? (n / total * 100) : 0;
+}
+
+function fmt(n) {
+  return Number(n).toLocaleString("id-ID");
+}
+
+function barHTML(data, total) {
+  return Object.entries(data).sort((a,b)=>b[1]-a[1]).map(([name,n]) => `
+    <div class="bar">
+      <span>${escapeHTML(name)}</span>
+      <div class="track"><div class="fill" style="width:${pct(n,total)}%"></div></div>
+      <b>${pct(n,total).toFixed(1).replace(".",",")}%</b>
+    </div>
+    <small>${fmt(n)} data</small>
+  `).join("");
+}
+
+function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g, ch => ({
+    "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+  }[ch]));
+}
+
+function setSelect(id, data) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const first = el.options[0].outerHTML;
+  el.innerHTML = first + Object.keys(data).sort().map(v =>
+    `<option value="${escapeHTML(v)}">${escapeHTML(v)}</option>`
+  ).join("");
+}
+
+function setStatus(message, error=false) {
+  const el = document.getElementById("status");
+  el.textContent = message;
+  el.className = error ? "status error" : "status";
+}
+
+function fillDashboard(rows) {
+  const total = rows.length;
+  const usaha = countBy(rows, "status_usaha");
+  const hki = countBy(rows, "kepemilikan_hki");
+  const pendapatan = countBy(rows, "pendapatan");
+  const pasar = countBy(rows, "lingkup_pemasaran");
+
+  const noUsaha = usaha["Tidak Berbadan Usaha"] || 0;
+  const noHki = hki["Tidak"] || 0;
+  const lokal = pasar["Dalam Kabupaten"] || 0;
+
+  document.getElementById("totalA").textContent = fmt(total);
+  document.getElementById("usahaA").textContent = pct(noUsaha,total).toFixed(1).replace(".",",")+"%";
+  document.getElementById("usahaDetailA").textContent = fmt(noUsaha)+" pelaku";
+  document.getElementById("hkiA").textContent = pct(noHki,total).toFixed(1).replace(".",",")+"%";
+  document.getElementById("hkiDetailA").textContent = fmt(noHki)+" pelaku";
+  document.getElementById("pasarA").textContent = pct(lokal,total).toFixed(1).replace(".",",")+"%";
+  document.getElementById("pasarDetailA").textContent = fmt(lokal)+" pelaku";
+
+  document.getElementById("chartUsahaA").innerHTML = barHTML(usaha,total);
+  document.getElementById("chartPendapatanA").innerHTML = barHTML(pendapatan,total);
+  document.getElementById("chartPasarA").innerHTML = barHTML(pasar,total);
+
+  const hkiPercent = pct(noHki,total);
+  document.getElementById("donutA").style.background =
+    `conic-gradient(var(--g) 0 ${hkiPercent}%,#e9b34c ${hkiPercent}% 100%)`;
+
+  const hkiText = `Belum memiliki: ${fmt(noHki)} (${hkiPercent.toFixed(1).replace(".",",")}%)<br><br>
+    Memiliki: ${fmt(hki["Ya"]||0)} (${pct(hki["Ya"]||0,total).toFixed(1).replace(".",",")}%)`;
+  document.getElementById("legendHkiA").innerHTML = hkiText;
+
+  document.getElementById("totalB").textContent = fmt(total);
+  document.getElementById("usahaB").textContent = pct(noUsaha,total).toFixed(1).replace(".",",")+"%";
+  document.getElementById("hkiB").textContent = pct(noHki,total).toFixed(1).replace(".",",")+"%";
+  document.getElementById("chartPendapatanB").innerHTML = barHTML(pendapatan,total);
+  document.getElementById("chartPasarB").innerHTML = barHTML(pasar,total);
+  document.getElementById("legendHkiB").innerHTML = hkiText;
+
+  document.getElementById("totalD").textContent = fmt(total);
+  document.getElementById("legendHkiD").innerHTML = hkiText;
+  document.getElementById("chartUsahaD").innerHTML = barHTML(usaha,total);
+}
+
+function applyPolicyFilter() {
+  currentRows = allRows.filter(r =>
+    (!filterUsahaA.value || r.status_usaha === filterUsahaA.value) &&
+    (!filterHkiA.value || r.kepemilikan_hki === filterHkiA.value) &&
+    (!filterPendapatanA.value || r.pendapatan === filterPendapatanA.value) &&
+    (!filterPasarA.value || r.lingkup_pemasaran === filterPasarA.value)
+  );
+  fillDashboard(currentRows);
+  setStatus("Menampilkan " + fmt(currentRows.length) + " data sesuai filter.");
+}
+
+function resetPolicyFilter() {
+  ["filterUsahaA","filterHkiA","filterPendapatanA","filterPasarA"].forEach(id => document.getElementById(id).value = "");
+  currentRows = allRows;
+  fillDashboard(allRows);
+  setStatus("Filter direset. Menampilkan seluruh data.");
+}
+
+function renderTable() {
+  let rows = allRows.filter(r =>
+    (!filterUsahaC.value || r.status_usaha === filterUsahaC.value) &&
+    (!filterHkiC.value || r.kepemilikan_hki === filterHkiC.value)
+  );
+  const field = dimensiC.value;
+  const keyword = searchC.value.toLowerCase();
+  const counts = countBy(rows,field);
+  const entries = Object.entries(counts).filter(([name]) => name.toLowerCase().includes(keyword));
+  const total = rows.length;
+
+  document.getElementById("totalC").textContent = fmt(total);
+  document.getElementById("kategoriC").textContent = fmt(entries.length);
+  document.getElementById("tableBody").innerHTML = entries
+    .sort((a,b)=>b[1]-a[1])
+    .map(([name,n]) => `<tr><td>${fields[field]}</td><td>${escapeHTML(name)}</td><td>${fmt(n)}</td><td>${pct(n,total).toFixed(1).replace(".",",")}%</td></tr>`)
+    .join("");
+}
+
+function resetProcessor() {
+  searchC.value = "";
+  dimensiC.value = "status_usaha";
+  filterUsahaC.value = "";
+  filterHkiC.value = "";
+  renderTable();
+}
+
+function renderMobileTable() {
+  const field = dimensiD.value;
+  const counts = countBy(allRows,field);
+  document.getElementById("tableMobile").innerHTML =
+    Object.entries(counts).sort((a,b)=>b[1]-a[1])
+    .map(([name,n]) => `${escapeHTML(name)}: <b>${fmt(n)}</b> (${pct(n,allRows.length).toFixed(1).replace(".",",")}%)`)
+    .join("<br><br>");
+}
+
+function showView(id) {
+  document.querySelectorAll("[data-view]").forEach(b => b.classList.toggle("active",b.dataset.view===id));
+  document.querySelectorAll(".view").forEach(v => v.classList.toggle("active",v.id===id));
+  window.scrollTo(0,0);
+}
+
+document.querySelectorAll("[data-view]").forEach(b =>
+  b.addEventListener("click",()=>showView(b.dataset.view))
+);
+
+document.getElementById("dimensiD").addEventListener("change",renderMobileTable);
+document.getElementById("dimensiC").addEventListener("change",renderTable);
+document.getElementById("searchC").addEventListener("input",renderTable);
+
+async function loadCSV() {
+  try {
+    const response = await fetch("pelaku_ekraf_240820.csv");
+    if (!response.ok) throw new Error("File CSV tidak ditemukan oleh browser.");
+    const buffer = await response.arrayBuffer();
+    const text = new TextDecoder("windows-1252").decode(buffer);
+    allRows = parseCSV(text);
+
+    if (!allRows.length || !allRows[0].status_usaha) {
+      throw new Error("Kolom CSV tidak terbaca. Periksa format file dan pemisah titik koma.");
+    }
+
+    currentRows = allRows;
+    setSelect("filterUsahaA",countBy(allRows,"status_usaha"));
+    setSelect("filterHkiA",countBy(allRows,"kepemilikan_hki"));
+    setSelect("filterPendapatanA",countBy(allRows,"pendapatan"));
+    setSelect("filterPasarA",countBy(allRows,"lingkup_pemasaran"));
+    setSelect("filterUsahaC",countBy(allRows,"status_usaha"));
+    setSelect("filterHkiC",countBy(allRows,"kepemilikan_hki"));
+
+    fillDashboard(allRows);
+    renderTable();
+    renderMobileTable();
+    setStatus("Berhasil memuat " + fmt(allRows.length) + " baris data dari CSV.");
+  } catch (error) {
+    setStatus(error.message + " Buka halaman melalui Live Server dan pastikan CSV berada satu folder dengan index.html.",true);
+  }
+}
+
+loadCSV();
+</script>
+</body>
+</html>
